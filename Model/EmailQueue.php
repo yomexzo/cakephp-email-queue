@@ -78,7 +78,7 @@ class EmailQueue extends AppModel {
 			'conditions' => array(
 				'EmailQueue.sent' => false,
 				'EmailQueue.send_tries <=' => 3,
-				'EmailQueue.send_at <=' => gmdate('Y-m-d H:i:s'),
+				'EmailQueue.send_at <=' => date('Y-m-d H:i:s'),
 				'EmailQueue.locked' => false
 			),
 			'order' => array('EmailQueue.created' => 'ASC')
@@ -130,16 +130,16 @@ class EmailQueue extends AppModel {
 	}
 
 /**
- * Marks an email from the queue as failed, and increments the number of tries
+ * Marks an email from the queue as failed, increments the number of tries and sets the reason why the last try failed
  *
  * @param string $id, queued email id
  * @return boolean
  * @access public
  */
-	public function fail($id) {
+	public function fail($id, $reason = null) {
 		$this->id = $id;
 		$tries = $this->field('send_tries');
-		return $this->saveField('send_tries', $tries + 1);
+		return $this->updateAll(array('EmailQueue.send_tries' => $tries + 1, 'EmailQueue.note'=>"'".$reason."'"), array('EmailQueue.id'=>$id));
 	}
 
 /**

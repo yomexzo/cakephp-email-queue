@@ -69,7 +69,8 @@ class SenderShell extends AppShell {
 					->viewVars($e['EmailQueue']['template_vars'])
 					->send();
 			} catch (SocketException $exception) {
-				$this->err($exception->getMessage());
+				$fail_reason = $exception->getMessage();
+				$this->err($fail_reason);
 				$sent = false;
 			}
 
@@ -77,7 +78,7 @@ class SenderShell extends AppShell {
 				$emailQueue->success($e['EmailQueue']['id']);
 				$this->out('<success>Email ' . $e['EmailQueue']['id'] . ' was sent</success>');
 			} else {
-				$emailQueue->fail($e['EmailQueue']['id']);
+				$emailQueue->fail($e['EmailQueue']['id'], $fail_reason);
 				$this->out('<error>Email ' . $e['EmailQueue']['id'] . ' was not sent</error>');
 			}
 
